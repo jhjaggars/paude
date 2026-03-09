@@ -33,10 +33,14 @@ class BuildContext:
 
 def resolve_entrypoint(script_dir: Path | None) -> Path:
     """Resolve the entrypoint.sh path based on script directory."""
-    base_path = Path(__file__).parent.parent.parent.parent
     if script_dir:
         return script_dir / "containers" / "paude" / "entrypoint.sh"
-    return base_path / "containers" / "paude" / "entrypoint.sh"
+    # Check installed package data first (present when installed via pip/uv)
+    pkg_containers = Path(__file__).parent.parent / "containers" / "paude"
+    if pkg_containers.is_dir():
+        return pkg_containers / "entrypoint.sh"
+    # Fall back to source checkout layout
+    return Path(__file__).parent.parent.parent.parent / "containers" / "paude" / "entrypoint.sh"
 
 
 def copy_entrypoints(entrypoint: Path, dest_dir: Path) -> None:
